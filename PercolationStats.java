@@ -1,22 +1,24 @@
 // http://coursera.cs.princeton.edu/algs4/assignments/percolation.html
 
 public class PercolationStats {
-	double mean = 0;
-	double stddev = 0;
+	private double mean = 0;
+	private double stddev = 0;
+	private double confidenceHi = 0;
+	private double confidenceLo = 0;
 	public PercolationStats(int N, int T)    // perform T independent computational experiments on an N-by-N grid
 	{
 		if(N <= 0) throw new IllegalArgumentException("N");
 		if(T <= 0) throw new IllegalArgumentException("T");
 
-		double threshholdSum = 0;
+		double thresholdSum = 0;
 		double deviationSum = 0;
-		double[] threshholds = new double[T];
+		double[] thresholds = new double[T];
 		for(int t=1; t<=T; t++)
 		{
 			Percolation percolation = new Percolation(N);
 			int i,j;
 			int count = 0;
-			double threshhold = 0;
+			double threshold = 0;
 			
 			while(!percolation.percolates())
 			{
@@ -28,30 +30,38 @@ public class PercolationStats {
 				percolation.open(i,j);
 				count++;
 			}
-			threshhold = (double)count/(N*N);
-			threshholdSum += threshhold;
-			threshholds[t-1] = threshold;
+			threshold = (double)count/(N*N);
+			thresholdSum += threshold;
+			thresholds[t-1] = threshold;
 		}
-		mean = threshholdSum/ T;
+		mean = thresholdSum/ T;
 
-
-		for(int i =0; i<threshholds.length; i++)
+		double sharpnessSquareSum = 0;
+		for(int i =0; i<thresholds.length; i++)
 		{
-
-			// stddev =  // TODO NEXT
-
+			sharpnessSquareSum += Math.pow(thresholds[i] - mean, 2);
 		}
+
+		stddev = Math.pow(sharpnessSquareSum/(T-1),0.5 );
+		confidenceLo = mean - 1.96*stddev/Math.pow(T, 0.5);
+		confidenceHi = mean + 1.96*stddev/Math.pow(T, 0.5);
 	}
-	public double mean()                     // sample mean of percolation threshold
+	public double mean()  // sample mean of percolation threshold
 	{
 		return mean;
 	}
-	public double stddev()                   // sample standard deviation of percolation threshold
+	public double stddev()  // sample standard deviation of percolation threshold
 	{
 		return stddev;
 	}
-//	public double confidenceLo()             // returns lower bound of the 95% confidence interval
-//	public double confidenceHi()             // returns upper bound of the 95% confidence interval
+	public double confidenceLo() // returns lower bound of the 95% confidence interval
+	{
+		return confidenceLo;
+	}
+	public double confidenceHi() // returns upper bound of the 95% confidence interval
+	{
+		return confidenceHi;
+	}
 	public static void main(String[] args)   // test client, described below
 	{
 		if(args.length != 2) 
@@ -62,6 +72,8 @@ public class PercolationStats {
 
 		PercolationStats stats = new PercolationStats(N,T);
 
-		StdOut.println("mean =" + stats.mean());
+		StdOut.println("mean                     = " + stats.mean());
+		StdOut.println("stddev                   = " + stats.stddev());
+		StdOut.println("95% confidence interval  = " + stats.confidenceLo() + ", "+ stats.confidenceHi());
 	}
 }

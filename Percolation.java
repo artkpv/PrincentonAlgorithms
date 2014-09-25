@@ -152,7 +152,7 @@ public class Percolation {
 		return root(idTop) == root(idBottom);
 	}
 
-	public void print()
+	private void print()
 	{
 		for(int i = 0; i<id.length; i++)
 		{
