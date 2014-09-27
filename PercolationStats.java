@@ -1,11 +1,20 @@
-// http://coursera.cs.princeton.edu/algs4/assignments/percolation.html
+/*************************************************************************
+ *  Author:     Artem K., w1ld at inbox dot ru
+ *  Project:    Princenton, Algorithms, part 1. 
+ *  Created at: Sep, 2014
+ *
+ *  Computes statistical info for percolation programming assignment
+ *  http://coursera.cs.princeton.edu/algs4/assignments/percolation.html
+ *
+ *************************************************************************/
 
 public class PercolationStats {
 	private double mean = 0;
 	private double stddev = 0;
 	private double confidenceHi = 0;
 	private double confidenceLo = 0;
-	public PercolationStats(int N, int T)    // perform T independent computational experiments on an N-by-N grid
+	// perform T independent computational experiments on an N-by-N grid
+	public PercolationStats(int N, int T)    
 	{
 		if(N <= 0) throw new IllegalArgumentException("N");
 		if(T <= 0) throw new IllegalArgumentException("T");
@@ -42,9 +51,21 @@ public class PercolationStats {
 			sharpnessSquareSum += Math.pow(thresholds[i] - mean, 2);
 		}
 
-		stddev = Math.pow(sharpnessSquareSum/(T-1),0.5 );
-		confidenceLo = mean - 1.96*stddev/Math.pow(T, 0.5);
-		confidenceHi = mean + 1.96*stddev/Math.pow(T, 0.5);
+		if (T == 1) 
+			stddev = Double.NaN;
+		else
+			stddev = Math.pow(sharpnessSquareSum/(T-1),0.5 );
+
+		if (T == 0)
+		{
+			confidenceLo = Double.NaN;
+			confidenceHi = Double.NaN;
+		}
+		else
+		{
+			confidenceLo = mean - 1.96*stddev/Math.pow(T, 0.5);
+			confidenceHi = mean + 1.96*stddev/Math.pow(T, 0.5);
+		}
 	}
 	public double mean()  // sample mean of percolation threshold
 	{
