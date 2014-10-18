@@ -12,14 +12,12 @@
  * and http://coursera.cs.princeton.edu/algs4/checklists/collinear.html
  *************************************************************************/
 
-// TODO NEXT : SLOPE_ORDER
-
 import java.util.Comparator;
 
 public class Point implements Comparable<Point> {
 
     // compare points by slope
-    public final Comparator<Point> SLOPE_ORDER;       // YOUR DEFINITION HERE
+    public final Comparator<Point> SLOPE_ORDER;       
 
     private final int x;                              // x coordinate
     private final int y;                              // y coordinate

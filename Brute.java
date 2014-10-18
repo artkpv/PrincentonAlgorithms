@@ -1,3 +1,4 @@
+
 public class Brute {
    public static void main(String[] args) {
 	   if(args.length != 1) throw new IllegalArgumentException();
@@ -57,9 +58,7 @@ public class Brute {
 						   }
 
 						   StdOut.println(sp[0].toString() + " -> " + sp[1].toString()+ " -> " + sp[2].toString()+ " -> " + sp[3].toString());
-						   sp[0].drawTo(sp[1]);
-						   sp[1].drawTo(sp[2]);
-						   sp[2].drawTo(sp[3]);
+						   sp[0].drawTo(sp[3]);
 					   }
 				   }
 			   }
