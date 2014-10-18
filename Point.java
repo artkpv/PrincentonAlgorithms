@@ -59,8 +59,8 @@ public class Point implements Comparable<Point> {
 
     // slope between this point and that point
     public double slopeTo(Point that) {
-		int subX =  (that.x - this.x);
-		int subY =  (that.y - this.y);
+		double subX =  (that.x - this.x);
+		double subY =  (that.y - this.y);
 
 		if(subX == 0 && subY == 0) return Double.NEGATIVE_INFINITY;
 		if(subX == 0) return Double.POSITIVE_INFINITY;
