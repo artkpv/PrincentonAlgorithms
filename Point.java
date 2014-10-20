@@ -105,6 +105,10 @@ public class Point implements Comparable<Point> {
 			assert new Point(1, 1).slopeTo(new Point(2, 1)) == 0;
 			assert new Point(1, 1).slopeTo(new Point(1, 2)) == Double.POSITIVE_INFINITY;
 			assert new Point(1, 1).slopeTo(new Point(1, 1)) == Double.NEGATIVE_INFINITY;
+
+			assert new Point(10000, 0).slopeTo(new Point(8000, 2000)) == -1;
+			assert new Point(10000, 0).slopeTo(new Point(13000, 0)) == 0;
+
 			StdOut.println(" SUCCESS test 2");
 		}
 
@@ -115,6 +119,21 @@ public class Point implements Comparable<Point> {
 			assert c.compare(new Point(2, 2), new Point(3, 2)) > 0;
 			assert c.compare(new Point(2, 1), new Point(2, 2)) < 0;
 			assert c.compare(new Point(1, 2), new Point(2, 2)) > 0;
+
+
+			assert c.compare(new Point(2, 2), new Point(-3, -3)) == 0;
+			assert c.compare(new Point(2, 2), new Point(-2, -3)) < 0;
+
+			assert c.compare(new Point(2, 2), new Point(-2, 2)) > 0;
+			assert c.compare(new Point(2, 2), new Point(2, -2)) > 0;
+
+			assert c.compare(new Point(2, 2), new Point(2, 2)) == 0;
+			assert c.compare(new Point(1, 1), new Point(1, 1)) == 0;
+
+			assert new Point(10000, 0).SLOPE_ORDER.compare(new Point(13000, 0), new Point(8000, 2000)) > 0;
+			// x1, y1 : 0
+			// x2, y2 : 2000 - 0 / 8000 - 10000 = -1
+
 			StdOut.println(" Success test 3" );
 		}
 
