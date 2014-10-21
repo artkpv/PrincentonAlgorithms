@@ -1,3 +1,28 @@
+/*************************************************************************
+ * Name: Artem K. 
+ * Email: w1ld at inbox dot ru
+ *
+ * See http://coursera.cs.princeton.edu/algs4/assignments/collinear.html
+ * and http://coursera.cs.princeton.edu/algs4/checklists/collinear.html
+ *************************************************************************/
+
+
+// NEXT (21.10.2014 Tue 13:13) : Fix up duplicates as follows? But fails on timing? 
+/*
+ *
+C:\coding\princeton\algorithms1 [master +0 ~3 -0]> .\javac.cmd .\Fast.java ; .\java.cmd Fast .\collinear\input8.txt
+Note: .\Fast.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+(10000, 0) -> (7000, 3000) -> (3000, 7000) -> (0, 10000)
+(10000, 0) -> (7000, 3000) -> (3000, 7000) -> (0, 10000)
+(10000, 0) -> (7000, 3000) -> (3000, 7000) -> (0, 10000)
+(10000, 0) -> (7000, 3000) -> (3000, 7000) -> (0, 10000)
+(3000, 4000) -> (6000, 7000) -> (14000, 15000) -> (20000, 21000)
+(3000, 4000) -> (6000, 7000) -> (14000, 15000) -> (20000, 21000)
+(3000, 4000) -> (6000, 7000) -> (14000, 15000) -> (20000, 21000)
+
+
+*/
 
 import java.util.Comparator;
 
@@ -30,51 +55,93 @@ public class Fast {
 
 	   assert points.length == N && points2.length == N;
 
+	   Point[] startPoints = new Point[N];
+	   int startPointsN = 0;
+
 	   for(int i = 0; i < N; i++) 
 	   {
 		   Point p0 = points[i];
 
-		   StdOut.println("p0 : " + p0.toString());
+		   //StdOut.println("p0 : " + p0.toString());
 
-		   quick3way(points2, p0.SLOPE_ORDER);
+		   quick3way(points2, p0.SLOPE_ORDER, p0);
 
 		   assert isSorted(points2, p0.SLOPE_ORDER, p0);
 
-		   int duplicatesNumber = 0;
-		   for(int j = 1; j < N; j++)
+		   int equalSlopesNumber = 1;
+		   for(int j = 0; j + 1 < N; j++)
 		   {
-			   if( points2[j-1] == points2[j])
+			   //StdOut.println(points2[j].toString() + ": " + p0.slopeTo(points2[j]));
+
+			   if(p0.SLOPE_ORDER.compare(points2[j], points2[j + 1]) == 0)
 			   {
-				   duplicatesNumber++;
-				   if(duplicatesNumber >= 3) // the p0 and 3 other
-				   {
-					   StdOut.print(p0.toString());
-					   for(int k = 0; k < 4; k++)
-					   {
-						   Point p1 = points2[j - duplicatesNumber];
-						   StdOut.print(" -> " + p1.toString());
-					   }
-					   StdOut.println();
-					   p0.drawTo(points2[j]);
-				   }
+				   equalSlopesNumber++;
 			   }
 			   else
 			   {
-				   duplicatesNumber = 0;
+				   if(equalSlopesNumber > 2)
+				   {
+					   Point[] slice = new Point[equalSlopesNumber + 1];
+					   slice[0] = p0;
+					   for(int k = 0; k < equalSlopesNumber; k++)
+					   {
+						   int lastInx = j;
+						   int offset = lastInx - k;
+						   slice[k + 1] = points2[offset];
+					   }
+					   
+					   if(print(slice, startPoints, startPointsN))
+					   {
+						   startPointsN += 2;
+					   }
+				   }
+
+				   equalSlopesNumber = 1;
 			   }
 		   }
 	   }
-	   StdOut.println("End");
+	   //StdOut.println("End - " + args[0]);
+   }
+
+   private static boolean print(Point[] points, Point[] startPoints, int startPointsN)
+   {
+	   // insertion sort:
+	   for(int i = 1; i < points.length; i++)
+	   {
+		   for(int j = i; j > 0 && less(points[j], points[j - 1]); j--)
+		   {
+			   exch(points, j, j - 1);
+		   }
+	   }
+
+	   // caching to solve duplicates problem?
+	   for(int i=0; i < startPointsN; i++)
+	   {
+		   if(startPoints[i].compareTo(points[0]) == 0 &&
+				   startPoints[i+1].compareTo(points[points.length- 1]) == 0)
+			   return false;
+	   }
+
+	   startPoints[startPointsN] = points[0];
+	   startPoints[startPointsN+1] = points[points.length - 1];
+	   
+	   StdOut.print(points[0].toString());
+	   for(int i = 1; i < points.length; i++)
+	   {
+		   StdOut.print( " -> " + points[i].toString());
+	   }
+	   StdOut.println();
+
+	   points[0].drawTo(points[points.length-1]);
+	   return true;
    }
 
    private static boolean isSorted(Point[] points, Comparator<Point> comparator, Point p0)
    {
-	   StdOut.println(" is sorted:");
+	   //StdOut.println(" is sorted:");
 	   for(int i = 0; i + 1 < points.length; i++)
 	   {
-		   StdOut.println(points[i] + " " ) ;
-		   StdOut.println(points[i+1] + " ");
-		   StdOut.println(comparator.compare(points[i], points[i + 1]));
+		   //StdOut.println(points[i] + " " ) ;
 
 		   // p0.drawTo(points[i]);
 		   // p0.drawTo(points[i+1]);
@@ -96,30 +163,51 @@ public class Fast {
        }
    }
    
-   private static void quick3way(Point[] points, Comparator<Point> comparator)
+   private static void quick3way(Point[] points, Comparator<Point> comparator, Point p0)
    {
 	   shuffle(points);
-	   sort(points, comparator, 0, points.length - 1);
+	   //for(int k=0; k<points.length; k++)
+	   //{
+	   //    StdOut.println(points[k].toString() + " " + p0.slopeTo(points[k]));
+	   //}
+
+	   sort(points, comparator, 0, points.length - 1, p0);
    }
 
-   private static void sort(Point[] points, Comparator<Point> comparator, int lo, int hi)
+   private static void sort(Point[] points, Comparator<Point> comparator, int lo, int hi, Point p0)
    {
+	   // StdOut.printf(" sort(.., .., lo = %d, hi = %d) \n", lo, hi);
+
 	   if(lo >= hi) return;
 
-	   int lt = lo, gt = hi;
+	   int lt = lo;
+	   int gt = hi;
 	   int i = lt;
 	   Point v = points[lo];
 
 	   while(i <= gt)
 	   {
 		   int cmp = comparator.compare(points[i], v);
+		   // StdOut.printf(" %s compare %s : %s\n", points[i], v, cmp);
 		   if(cmp < 0)	exch(points, i++, lt++);
-		   if(cmp > 0) 	exch(points, i, gt--);
+		   else if(cmp > 0) 	exch(points, i, gt--);
 		   else			i++;
 	   }
 
-	   sort(points, comparator, lo, lt - 1);
-	   sort(points, comparator, gt + 1, hi);
+	   //StdOut.printf("  v = %s, i = %s, lt = %d, gt = %d \n", v, i, lt, gt);
+	   //for(int k=lo; k<=hi; k++)
+	   //{
+	   //    StdOut.println(points[k].toString() + " " + p0.slopeTo(points[k]));
+	   //}
+
+
+	   sort(points, comparator, lo, lt - 1, p0);
+	   sort(points, comparator, gt + 1, hi, p0);
+   }
+
+   private static boolean less(Comparable c0, Comparable c1)
+   {
+	   return c0.compareTo(c1) < 0;
    }
 
    private static void exch(Point[] a, int i, int j)

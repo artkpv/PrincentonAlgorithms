@@ -30,9 +30,7 @@ public class Point implements Comparable<Point> {
 		}
 		
 		public int compare(Point p1, Point p2) {
-			double slope1 = p0.slopeTo(p1);
-			double slope2 = p0.slopeTo(p2);
-			return Double.compare(slope1, slope2);
+			return ((Double)p0.slopeTo(p1)).compareTo(p0.slopeTo(p2));
 		}
 	}
     // create the point (x, y)
@@ -69,9 +67,12 @@ public class Point implements Comparable<Point> {
     // is this point lexicographically smaller than that one?
     // comparing y-coordinates and breaking ties by x-coordinates
     public int compareTo(Point that) {
-        if(this.y < that.y || this.x < that.x) return -1;
-		if(this.y > that.y || this.x > that.x) return 1;
-		return 0;
+
+		if(this.y == that.y && this.x == that.x) return 0;
+
+        if(this.y < that.y || (this.y == that.y && this.x < that.x)) return -1;
+
+		return 1;
     }
 
     // return string representation of this point
@@ -96,7 +97,10 @@ public class Point implements Comparable<Point> {
 			assert new Point(1, 1).compareTo(new Point(1, 1)) == 0;
 			assert new Point(1, 2).compareTo(new Point(1, 1)) > 0;
 			assert new Point(2, 1).compareTo(new Point(1, 1)) > 0;
-			assert new Point(2, 2).compareTo(new Point(1, 1)) > 0;
+
+			// reflexive
+			assert new Point(490, 280).compareTo(new Point(208, 319)) < 0;
+			assert new Point(208, 319).compareTo(new Point(490, 280)) > 0;
 			StdOut.println(" SUCCESS test 1");
 		}
 
@@ -133,6 +137,8 @@ public class Point implements Comparable<Point> {
 			assert new Point(10000, 0).SLOPE_ORDER.compare(new Point(13000, 0), new Point(8000, 2000)) > 0;
 			// x1, y1 : 0
 			// x2, y2 : 2000 - 0 / 8000 - 10000 = -1
+
+			assert new Point(18000, 10000).SLOPE_ORDER.compare(new Point(32000, 10000), new Point(1234, 5678)) < 0;
 
 			StdOut.println(" Success test 3" );
 		}

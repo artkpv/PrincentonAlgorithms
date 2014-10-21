@@ -49,11 +49,9 @@ public class Brute {
 						   // insertion sort:
 						   for(int r0 = 1; r0 < 4; r0++)
 						   {
-							   int r1 = r0;
-							   while(r1 > 1 && less(sp[r1], sp[r1 - 1]))
+							   for(int r1 = r0; r1 > 0 && less(sp[r1], sp[r1 - 1]); r1--)
 							   {
-								   exch(sp, r1, r1-1);
-								   r1--;
+								   exch(sp, r1, r1 - 1);
 							   }
 						   }
 
