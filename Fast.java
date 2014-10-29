@@ -7,20 +7,12 @@
  *************************************************************************/
 
 
-// NEXT (21.10.2014 Tue 13:13) : Fix up duplicates as follows? But fails on timing? 
+// NEXT (21.10.2014 Tue 20:06) : 
 /*
- *
-C:\coding\princeton\algorithms1 [master +0 ~3 -0]> .\javac.cmd .\Fast.java ; .\java.cmd Fast .\collinear\input8.txt
+ * why fails:
 Note: .\Fast.java uses unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 (10000, 0) -> (7000, 3000) -> (3000, 7000) -> (0, 10000)
-(10000, 0) -> (7000, 3000) -> (3000, 7000) -> (0, 10000)
-(10000, 0) -> (7000, 3000) -> (3000, 7000) -> (0, 10000)
-(10000, 0) -> (7000, 3000) -> (3000, 7000) -> (0, 10000)
-(3000, 4000) -> (6000, 7000) -> (14000, 15000) -> (20000, 21000)
-(3000, 4000) -> (6000, 7000) -> (14000, 15000) -> (20000, 21000)
-(3000, 4000) -> (6000, 7000) -> (14000, 15000) -> (20000, 21000)
-
 
 */
 
@@ -40,7 +32,6 @@ public class Fast {
 	   StdDraw.setYscale(0, 32768);
 
 	   Point[] points = new Point[N];
-	   Point[] points2 = new Point[N];
 	   for(int i = 0; i < N; i++)
 	   {
 		   int x = in.readInt();
@@ -48,62 +39,64 @@ public class Fast {
 
 		   Point newP = new Point(x, y);
 		   points[i] = newP;
-		   points2[i] = newP;
 		   newP.draw();
 		   //StdOut.println(newP);
 	   }
 
-	   assert points.length == N && points2.length == N;
+	   assert points.length == N;
 
-	   Point[] startPoints = new Point[N];
-	   int startPointsN = 0;
+	   Point[] points2 = new Point[N];
 
 	   for(int i = 0; i < N; i++) 
 	   {
 		   Point p0 = points[i];
 
+		   for(int j=i; j < N; j++)
+		   {
+			   points2[j] = points[j];
+		   }
+
 		   //StdOut.println("p0 : " + p0.toString());
 
-		   quick3way(points2, p0.SLOPE_ORDER, p0);
+		   quick3way(points2, p0.SLOPE_ORDER, i);
 
-		   assert isSorted(points2, p0.SLOPE_ORDER, p0);
+		   assert isSorted(points2, p0.SLOPE_ORDER, i);
 
-		   int equalSlopesNumber = 1;
-		   for(int j = 0; j + 1 < N; j++)
+		   int equalSlopes = 1; 
+		   for(int j = i + 1; j < N; j++)
 		   {
-			   //StdOut.println(points2[j].toString() + ": " + p0.slopeTo(points2[j]));
-
-			   if(p0.SLOPE_ORDER.compare(points2[j], points2[j + 1]) == 0)
+			   if(p0.SLOPE_ORDER.compare(points2[j - 1], points2[j]) == 0)
 			   {
-				   equalSlopesNumber++;
+				   equalSlopes++;
+				   if(j + 1 == N)
+				   {
+					   if(equalSlopes > 2) sliceAndPrint(p0, points2, j, equalSlopes);
+				   }
 			   }
 			   else
 			   {
-				   if(equalSlopesNumber > 2)
-				   {
-					   Point[] slice = new Point[equalSlopesNumber + 1];
-					   slice[0] = p0;
-					   for(int k = 0; k < equalSlopesNumber; k++)
-					   {
-						   int lastInx = j;
-						   int offset = lastInx - k;
-						   slice[k + 1] = points2[offset];
-					   }
-					   
-					   if(print(slice, startPoints, startPointsN))
-					   {
-						   startPointsN += 2;
-					   }
-				   }
-
-				   equalSlopesNumber = 1;
+				   if(equalSlopes > 2) sliceAndPrint(p0, points2, j - 1, equalSlopes);
+				   equalSlopes = 1;
 			   }
+
 		   }
 	   }
 	   //StdOut.println("End - " + args[0]);
    }
 
-   private static boolean print(Point[] points, Point[] startPoints, int startPointsN)
+   private static void sliceAndPrint(Point first, Point[] points, int last, int n)
+   {
+	   Point[] slice = new Point[n + 1];
+	   slice[0] = first;
+	   for(int k = 0; k < n; k++)
+	   {
+		   slice[k + 1] = points[last - k];
+	   }
+	   
+	   print(slice);
+   }
+
+   private static boolean print(Point[] points)
    {
 	   // insertion sort:
 	   for(int i = 1; i < points.length; i++)
@@ -114,17 +107,6 @@ public class Fast {
 		   }
 	   }
 
-	   // caching to solve duplicates problem?
-	   for(int i=0; i < startPointsN; i++)
-	   {
-		   if(startPoints[i].compareTo(points[0]) == 0 &&
-				   startPoints[i+1].compareTo(points[points.length- 1]) == 0)
-			   return false;
-	   }
-
-	   startPoints[startPointsN] = points[0];
-	   startPoints[startPointsN+1] = points[points.length - 1];
-	   
 	   StdOut.print(points[0].toString());
 	   for(int i = 1; i < points.length; i++)
 	   {
@@ -136,10 +118,10 @@ public class Fast {
 	   return true;
    }
 
-   private static boolean isSorted(Point[] points, Comparator<Point> comparator, Point p0)
+   private static boolean isSorted(Point[] points, Comparator<Point> comparator, int lo)
    {
 	   //StdOut.println(" is sorted:");
-	   for(int i = 0; i + 1 < points.length; i++)
+	   for(int i = lo; i + 1 < points.length; i++)
 	   {
 		   //StdOut.println(points[i] + " " ) ;
 
@@ -154,27 +136,29 @@ public class Fast {
 	   return true;
    }
 
-   private static void shuffle(Point[] a)
+   private static void shuffle(Point[] a, int lo)
    {
-       for(int i=1; i < a.length; i++)
+       for(int i=lo + 1; i < a.length; i++)
        {
-    	   int j = StdRandom.uniform(0, i);
+    	   int j = StdRandom.uniform(lo, i);
+
     	   exch(a, i, j);
        }
    }
    
-   private static void quick3way(Point[] points, Comparator<Point> comparator, Point p0)
+   private static void quick3way(Point[] points, Comparator<Point> comparator, int lo)
    {
-	   shuffle(points);
+	   //StdOut.println(" quick3way: lo=" +lo);
+	   shuffle(points, lo);
 	   //for(int k=0; k<points.length; k++)
 	   //{
 	   //    StdOut.println(points[k].toString() + " " + p0.slopeTo(points[k]));
 	   //}
 
-	   sort(points, comparator, 0, points.length - 1, p0);
+	   sort(points, comparator, lo, points.length - 1);
    }
 
-   private static void sort(Point[] points, Comparator<Point> comparator, int lo, int hi, Point p0)
+   private static void sort(Point[] points, Comparator<Point> comparator, int lo, int hi)
    {
 	   // StdOut.printf(" sort(.., .., lo = %d, hi = %d) \n", lo, hi);
 
@@ -188,6 +172,7 @@ public class Fast {
 	   while(i <= gt)
 	   {
 		   int cmp = comparator.compare(points[i], v);
+		   //StdOut.printf(" cmp(%s, %s) = %d\n", points[i], v, cmp);
 		   // StdOut.printf(" %s compare %s : %s\n", points[i], v, cmp);
 		   if(cmp < 0)	exch(points, i++, lt++);
 		   else if(cmp > 0) 	exch(points, i, gt--);
@@ -201,8 +186,8 @@ public class Fast {
 	   //}
 
 
-	   sort(points, comparator, lo, lt - 1, p0);
-	   sort(points, comparator, gt + 1, hi, p0);
+	   sort(points, comparator, lo, lt - 1);
+	   sort(points, comparator, gt + 1, hi);
    }
 
    private static boolean less(Comparable c0, Comparable c1)
