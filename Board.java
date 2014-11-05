@@ -5,10 +5,9 @@ import java.util.Iterator;
 
 public class Board 
 {
-	int N;
-	int[][] blocks;
-	Board previous;
-	int count;
+	private int N;
+	private int[][] blocks;
+	private Board previous;
 
 	// construct a board from an N-by-N array of blocks
 	// (where blocks[i][j] = block in row i, column j)
@@ -24,16 +23,16 @@ public class Board
 			}
 		}
 		previous = null;
-		count = 0;
 	}
-	
+
 	// board dimension N 
 	public int dimension()                
 	{
 		return N;
 	}
 
-	private int hammingNoCount()
+	// number of blocks out of place 
+	public int hamming()                  
 	{
 		int hamming = 0;
 		for(int i=0; i < N; i++)
@@ -47,16 +46,11 @@ public class Board
 		}
 		return hamming;
 	}
-	// number of blocks out of place 
-	public int hamming()                  
-	{
-		return hammingNoCount() + count;
-	}
 
 	// sum of Manhattan distances between blocks and goal 
 	public int manhattan()                
 	{
-		int manhattan = count;
+		int manhattan = 0;
 
 		for(int i=0; i < N; i++)
 		{
@@ -80,13 +74,31 @@ public class Board
 	// is this board the goal board? 
 	public boolean isGoal()               
 	{
-		return hammingNoCount() == 0;
+		return hamming() == 0;
 	}
 
 	// a boadr that is obtained by exchanging two adjacent blocks in the same row 
 	public Board twin()                   
 	{ 
-		throw new java.lang.UnsupportedOperationException();
+		Board twin = new Board(blocks);	
+		if(twin.N == 1)
+			return twin;
+
+		int previousBlock = -1;
+
+		boolean isTwin = false;
+		for(int i = twin.N - 1; i >= 0 && !isTwin; i--)
+		{
+			for(int j = twin.N - 1; j > 0 && !isTwin; j--)
+			{
+				if(twin.blocks[i][j] != 0 && twin.blocks[i][j-1] != 0)
+				{
+					twin.exch(i, j, i, j - 1);
+					isTwin = true;
+				}
+			}
+		}
+		return twin;
 	}
 
 	// does this board equal y? 
@@ -133,7 +145,7 @@ public class Board
 		{
 			neighbors = new Board[4];
 			size = 0;
-			
+
 			for(int i = 0; i < N; i++)
 			{
 				for(int j = 0; j < N; j++)
@@ -199,16 +211,15 @@ public class Board
 	// string representation of this board (in the output format specified below) 
 	public String toString()              
 	{ 
-		String stringBoard = Integer.toString(N);
-		for(int i = 0; i < N; i++)
-		{
-			stringBoard += "\n";
-			for(int j = 0; j < N; j++)
-			{
-				stringBoard += (" " + blocks[i][j]);
+		StringBuilder s = new StringBuilder();
+		s.append(N + "\n");
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				s.append(String.format("%2d ", blocks[i][j]));
 			}
+			s.append("\n");
 		}
-		return stringBoard;
+		return s.toString();
 	}
 
 	// unit tests (not graded) 
@@ -221,6 +232,8 @@ public class Board
 
 		ShouldExchange();
 		ShouldIterateNeighbors();
+
+		ShouldGetTwin();
 	}
 
 	private static void ShouldExchange()
@@ -257,7 +270,7 @@ public class Board
 	private static void ShouldGetEquality()
 	{
 		assert !(new Board(new int[][] {{0}}).equals(new Object()));
-		assert !(new Board(new int[][] {{0}}).equals(null));
+	//	assert !(new Board(new int[][] {{0}}).equals(null));
 		assert !(new Board(new int[][] {{0}}).equals(new Board(new int[][] {{1}})));
 		assert (new Board(new int[][] {{0}}).equals(new Board(new int[][] {{0}})));
 		assert (new Board(new int[][] {{0, 1}, {2, 3}}).equals(new Board(new int[][] {{0, 1}, {2, 3}})));
@@ -285,5 +298,29 @@ public class Board
 			}
 			assert found : (" The following neighbor not found \n" + neighbors[i].toString() );
 		}
+	}
+
+	private static void ShouldGetTwin()
+	{
+		assert (
+				new Board(new int[][] {{0, 1}, {2, 3}})
+				.twin()
+				.equals(new Board(new int[][] {{0, 1}, {3, 2}}))
+			   );
+		assert (
+				new Board(new int[][] {{0}})
+				.twin()
+				.equals(new Board(new int[][] {{0}}))
+			   );
+		assert (
+				new Board(new int[][] {{3, 1}, {2, 0}})
+				.twin()
+				.equals(new Board(new int[][] {{1, 3}, {2, 0}}))
+			   );
+		assert (
+				new Board(new int[][] {{5, 1, 2}, {6 ,7, 8}, {3, 4, 0}})
+				.twin()
+				.equals(new Board(new int[][] {{5, 1, 2}, {6 ,7, 8},{4, 3, 0}}))
+			   );
 	}
 }
