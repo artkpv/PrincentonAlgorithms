@@ -1,5 +1,5 @@
 horse
+table
 zebra
 cat
 bear
-table
