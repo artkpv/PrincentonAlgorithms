@@ -5,6 +5,7 @@ import java.util.*;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.StdIn;
+import edu.princeton.cs.algs4.KosarajuSharirSCC;
 
 public class WordNet {
 
@@ -27,6 +28,60 @@ public class WordNet {
 		   throw new java.lang.NullPointerException();
 
 	   System.out.println(" (DEBUG) WordNet('" + synsets + "', '" + hypernyms + "')");
+	   construct_synsets(synsets);
+	   construct_hypernyms(hypernyms);
+
+	   System.out.println(" (DEBUG) WordNet constructed");
+   }
+
+   private void construct_hypernyms(String hypernyms) { 
+	   // read hypernyms file
+	   In hypernymsStream = new In(hypernyms);
+	   _digraph = new Digraph(_synsetIndexes.size());
+	   ArrayList<Integer> possibleRoots	 = new ArrayList<Integer>();
+	   String line;
+	   while((line = hypernymsStream.readLine()) != null) {
+		   // 1. parse:
+		   String[] fields = line.split(",");
+		   ArrayList<Integer> parsed = new ArrayList<Integer>(fields.length);
+		   for(String field : fields) {
+			   parsed.add(Integer.parseInt(field));
+		   }
+
+		   // 2. load into digraph
+		   int v = parsed.get(0);
+		   int indexOfRoot = possibleRoots.indexOf(v);
+		   if(indexOfRoot != -1)
+			   possibleRoots.remove(indexOfRoot);
+		   for(int i = 1; i < parsed.size(); i++) {
+			   int w = parsed.get(i);
+			   _digraph.addEdge(v, w);
+			   if(_digraph.outdegree(w) == 0)
+				   possibleRoots.add(w);
+		   }
+	   }
+
+	   //
+	   // Check that it is rooted DAG
+	   int numberOfRootsFound = 0;
+	   for(Integer r : possibleRoots) {
+		   if(_digraph.outdegree(r) == 0) {
+			   numberOfRootsFound++;
+			   if(numberOfRootsFound > 1) 
+				   throw new java.lang.IllegalArgumentException("Unexpected number of roots");
+		   }
+	   }
+	   
+	   // Check that there are no cycles:
+	   KosarajuSharirSCC scc = new KosarajuSharirSCC(_digraph);
+	   if(scc.count() > 0)
+		   throw new java.lang.IllegalArgumentException("Hypernyms should not contain cycles. Number of found cycles: " + scc.count());
+ 
+	   System.out.println(" (DEBUG) _digraph.V() == " + _digraph.V());
+	   System.out.println(" (DEBUG) _digraph.E() == " + _digraph.E());
+   }
+
+   private void construct_synsets(String synsets) {
 	   In synsetsStream = new In(synsets);
 	   String line = null;
 	   int readSynsetsCount = 0;
@@ -41,11 +96,8 @@ public class WordNet {
 		   for(String word : synset.Words) {
 			   ArrayList<Synset> relatedSynsets = _words.get(word);
 			   relatedSynsets = relatedSynsets != null ? relatedSynsets : new ArrayList<Synset>();
-			   
 			   relatedSynsets.add(synset);
-
 			   _words.put(word, relatedSynsets);
-
 			   readWordsCount++;
 		   }
 		   readSynsetsCount++;
@@ -57,52 +109,6 @@ public class WordNet {
 	   
 	   System.out.println(" (DEBUG) _synsetIndexes.size() == " + _synsetIndexes.size());
 	   System.out.println(" (DEBUG) _words.size() == " + _words.size());
-
-	   // read hypernyms file
-	   //  1. read to a list of lists
-	   In hypernymsStream = new In(hypernyms);
-	   ArrayList<ArrayList<Integer>> hypernymsLists = new ArrayList<ArrayList<Integer>>();
-	   while((line = hypernymsStream.readLine()) != null) {
-		   String[] fields = line.split(",");
-		   ArrayList<Integer> parsed = new ArrayList<Integer>(fields.length);
-		   for(String field : fields) {
-			   parsed.add(Integer.parseInt(field));
-		   }
-		   hypernymsLists.add(parsed);
-	   }
-	   assert !hypernymsStream.isEmpty() && hypernymsLists.size() != 0;
-
-	   System.out.println(" (DEBUG) hypernymsLists.size() == " + hypernymsLists.size());
-
-	   //  2. load into algs4.Digraph
-	   _digraph = new Digraph(_synsetIndexes.size());
-	   ArrayList<Integer> possibleRoots	 = new ArrayList<Integer>();
-	   for(List<Integer> set : hypernymsLists) {
-		   int v = set.get(0);
-		   int indexOfRoot = possibleRoots.indexOf(v);
-		   if(indexOfRoot != -1)
-			   possibleRoots.remove(indexOfRoot);
-		   for(int i = 1; i < set.size(); i++) {
-			   int w = set.get(i);
-			   _digraph.addEdge(v, w);
-			   if(_digraph.outdegree(w) == 0)
-				   possibleRoots.add(w);
-		   }
-	   }
-
-	   // 3. Check that it is rooted DAG
-	   int numberOfRootsFound = 0;
-	   for(Integer r : possibleRoots) {
-		   if(_digraph.outdegree(r) == 0) {
-			   numberOfRootsFound++;
-			   if(numberOfRootsFound > 1) 
-				   throw new java.lang.IllegalArgumentException("Unexpected number of roots");
-		   }
-	   }
-	   System.out.println(" (DEBUG) _digraph.V() == " + _digraph.V());
-	   System.out.println(" (DEBUG) _digraph.E() == " + _digraph.E());
-
-	   System.out.println(" (DEBUG) WordNet constructed");
    }
 
    // returns all WordNet nouns
@@ -176,7 +182,7 @@ public class WordNet {
    // do unit testing of this class
    public static void main(String[] args) {
 	   should_throw_if_not_rooted_DAG();
-	   should_throw_if_not_rooted_DAG_cicle();
+	   should_throw_if_cycles();
 	   should_ancestor_for_worm_and_bird();
    }
 
@@ -189,12 +195,24 @@ public class WordNet {
 		   isSuccess = true;
 	   }
 	   if(isSuccess)
-		   System.out.println("should_throw_if_not_rooted_DAG SUCCESS");
+		   System.out.println("should_throw_if_two_roots SUCCESS");
 	   else
-		   System.out.println("should_throw_if_not_rooted_DAG FAIL");
+		   System.out.println("should_throw_if_two_roots FAIL");
+
+	   isSuccess = false;
+	   try {
+		   WordNet wn = new WordNet("wordnet\\synsets6.txt", "wordnet\\hypernyms6InvalidTwoRoots.txt");
+	   }
+	   catch (java.lang.IllegalArgumentException e ) {
+		   isSuccess = true;
+	   }
+	   if(isSuccess)
+		   System.out.println("should_throw_if_two_roots for 6 SUCCESS");
+	   else
+		   System.out.println("should_throw_if_two_roots for 6 FAIL");
    }
 
-   private static void should_throw_if_not_rooted_DAG_cicle(){
+   private static void should_throw_if_cycles(){
 	   boolean isSuccess = false;
 	   try {
 		   WordNet wn = new WordNet("wordnet\\synsets3.txt", "wordnet\\hypernyms3InvalidCycle.txt");
@@ -203,9 +221,21 @@ public class WordNet {
 		   isSuccess = true;
 	   }
 	   if(isSuccess)
-		   System.out.println("should_throw_if_not_rooted_DAG_cicle SUCCESS");
+		   System.out.println("should_throw_if_cycles SUCCESS");
 	   else
-		   System.out.println("should_throw_if_not_rooted_DAG_cicle FAIL");
+		   System.out.println("should_throw_if_cycles FAIL");
+
+	   isSuccess = false;
+	   try {
+		   WordNet wn = new WordNet("wordnet\\synsets6.txt", "wordnet\\hypernyms6InvalidCycle.txt");
+	   }
+	   catch (java.lang.IllegalArgumentException e ) {
+		   isSuccess = true;
+	   }
+	   if(isSuccess)
+		   System.out.println("not_rooted_DAG_cicle for 6 SUCCESS");
+	   else
+		   System.out.println("not_rooted_DAG_cicle for 6 FAIL");
    }
 
    private static void should_ancestor_for_worm_and_bird(){
