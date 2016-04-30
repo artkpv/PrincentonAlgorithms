@@ -3,10 +3,9 @@
 :: ***************************************************
 :: java-algs4
 :: ------------------
-:: Wrapper for java that includes stdlib.jar 
-:: and algs4.jar
+:: Wrapper for java that includes algs4.jar
 :: ***************************************************
 
 set install=%USERPROFILE%\algs4
 
-java -cp ".;%install%\stdlib.jar;%install%\algs4.jar" %*
+java -cp ".;%install%\algs4.jar" %*
