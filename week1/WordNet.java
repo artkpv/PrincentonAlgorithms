@@ -34,53 +34,6 @@ public class WordNet {
 	   System.out.println(" (DEBUG) WordNet constructed");
    }
 
-   private void construct_hypernyms(String hypernyms) { 
-	   // read hypernyms file
-	   In hypernymsStream = new In(hypernyms);
-	   _digraph = new Digraph(_synsetIndexes.size());
-	   ArrayList<Integer> possibleRoots	 = new ArrayList<Integer>();
-	   String line;
-	   while((line = hypernymsStream.readLine()) != null) {
-		   // 1. parse:
-		   String[] fields = line.split(",");
-		   ArrayList<Integer> parsed = new ArrayList<Integer>(fields.length);
-		   for(String field : fields) {
-			   parsed.add(Integer.parseInt(field));
-		   }
-
-		   // 2. load into digraph
-		   int v = parsed.get(0);
-		   int indexOfRoot = possibleRoots.indexOf(v);
-		   if(indexOfRoot != -1)
-			   possibleRoots.remove(indexOfRoot);
-		   for(int i = 1; i < parsed.size(); i++) {
-			   int w = parsed.get(i);
-			   _digraph.addEdge(v, w);
-			   if(_digraph.outdegree(w) == 0)
-				   possibleRoots.add(w);
-		   }
-	   }
-
-	   //
-	   // Check that it is rooted DAG
-	   int numberOfRootsFound = 0;
-	   for(Integer r : possibleRoots) {
-		   if(_digraph.outdegree(r) == 0) {
-			   numberOfRootsFound++;
-			   if(numberOfRootsFound > 1) 
-				   throw new java.lang.IllegalArgumentException("Unexpected number of roots");
-		   }
-	   }
-	   
-	   // Check that there are no cycles:
-	   KosarajuSharirSCC scc = new KosarajuSharirSCC(_digraph);
-	   if(scc.count() > 0)
-		   throw new java.lang.IllegalArgumentException("Hypernyms should not contain cycles. Number of found cycles: " + scc.count());
- 
-	   System.out.println(" (DEBUG) _digraph.V() == " + _digraph.V());
-	   System.out.println(" (DEBUG) _digraph.E() == " + _digraph.E());
-   }
-
    private void construct_synsets(String synsets) {
 	   In synsetsStream = new In(synsets);
 	   String line = null;
@@ -109,6 +62,42 @@ public class WordNet {
 	   
 	   System.out.println(" (DEBUG) _synsetIndexes.size() == " + _synsetIndexes.size());
 	   System.out.println(" (DEBUG) _words.size() == " + _words.size());
+   }
+
+   private void construct_hypernyms(String hypernyms) { 
+	   // read hypernyms file
+	   In hypernymsStream = new In(hypernyms);
+	   _digraph = new Digraph(_synsetIndexes.size());
+	   int numberOfNotRoots = 0;
+	   String line;
+	   while((line = hypernymsStream.readLine()) != null) {
+		   // 1. parse:
+		   String[] fields = line.split(",");
+		   ArrayList<Integer> parsed = new ArrayList<Integer>(fields.length);
+		   for(String field : fields) {
+			   parsed.add(Integer.parseInt(field));
+		   }
+
+		   // 2. load into digraph
+		   int v = parsed.get(0);
+		   numberOfNotRoots++;
+		   for(int i = 1; i < parsed.size(); i++) {
+			   int w = parsed.get(i);
+			   _digraph.addEdge(v, w);
+		   }
+	   }
+
+	   int numberOfRoots = _digraph.V() - numberOfNotRoots;
+	   if(numberOfRoots > 1) 
+		   throw new java.lang.IllegalArgumentException("Unexpected number of roots: " + numberOfRoots);
+	   
+	   // Check that there are no cycles:
+	   KosarajuSharirSCC scc = new KosarajuSharirSCC(_digraph);
+	   if(scc.count() != _digraph.V())
+		   throw new java.lang.IllegalArgumentException("Hypernyms should not contain cycles.");
+ 
+	   System.out.println(" (DEBUG) _digraph.V() == " + _digraph.V());
+	   System.out.println(" (DEBUG) _digraph.E() == " + _digraph.E());
    }
 
    // returns all WordNet nouns
