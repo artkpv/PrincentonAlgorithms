@@ -13,8 +13,9 @@ public class Outcast {
 			int nounDistance = 0;
 			
 			for(String noun2 : nouns) { 
-				if(noun2 != noun)
+				if(noun2 != noun) {
 					nounDistance += _wordNet.distance(noun, noun2);
+				}
 			}
 			if(nounDistance > outcastDistance){ 
 				outcast = noun;

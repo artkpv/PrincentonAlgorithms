@@ -127,25 +127,20 @@ public class WordNet {
 		   throw new java.lang.IllegalArgumentException();
 
 	   SAP sap = new SAP(_digraph);
-	   Synset v = getShortestSynset(nounA);
-	   Synset w = getShortestSynset(nounB);
+	   // todo:
+	   Synset v = _words.get(nounA).get(0);
+	   Synset w = _words.get(nounB).get(0);
 	   return sap.length(v.Index, w.Index);
    }
-   
-   private Synset getShortestSynset(String word) {
-	   ArrayList<Synset> found = _words.get(word);
-	   int min = Integer.MAX_VALUE;
-	   Synset shortest = null;
-	   for(Synset s : found) {
-		   if(s.Words.size() < min) {
-			   min = s.Words.size();
-			   shortest = s;
-		   }
-	   }
 
-	   return shortest;
+   private ArrayList<Integer> get_ids_by_word(String word) {
+	   ArrayList<Synset> synsets = _words.get(word);
+	   ArrayList<Integer> ids = new ArrayList<Integer>();
+	   for(Synset s : synsets) 
+		   ids.add(s.Index);
+	   return ids;
    }
-
+   
    // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
    // in a shortest ancestral path (defined below)
    public String sap(String nounA, String nounB)
@@ -159,10 +154,13 @@ public class WordNet {
 	   if(!isNoun(nounB))
 		   throw new java.lang.IllegalArgumentException();
 	   
+	   System.out.println(" (DEBUG) sap('" + nounA + "', '" + nounB + "')");
 	   SAP sap = new SAP(_digraph);
-	   Synset v = getShortestSynset(nounA);
-	   Synset w = getShortestSynset(nounB);
-	   int a = sap.ancestor(v.Index, w.Index);
+
+	   ArrayList<Integer> v = get_ids_by_word(nounA);
+	   ArrayList<Integer> w = get_ids_by_word(nounB);
+	   int a = sap.ancestor(v, w);
+	   System.out.println(" (DEBUG) sap(), a == " + a);
 	   if(a != -1)
 		   return _synsetIndexes.get(a).Words.get(0);
 	   return null;
@@ -231,7 +229,7 @@ public class WordNet {
 	   WordNet wn = new WordNet("wordnet\\synsets.txt", "wordnet\\hypernyms.txt");
 	   String ancestor = wn.sap("worm", "bird");
 	   String expected = "animal";
-	   if(ancestor == expected)
+	   if(ancestor.equals(expected))
 		   System.out.println("should_ancestor_for_worm_and_bird SUCCESS");
 	   else
 		   System.out.println("should_ancestor_for_worm_and_bird FAIL: " + expected + " != " + ancestor);
