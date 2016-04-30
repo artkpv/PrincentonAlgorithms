@@ -18,6 +18,8 @@ public class SAP {
     // length of shortest ancestral path between v and w; -1 if no such path
     public int length(int v, int w) {
         bfs(v, w);
+        if (minLength == Integer.MAX_VALUE) 
+            return -1;
         return minLength;
     }
 
@@ -33,14 +35,14 @@ public class SAP {
         int[] distTo = new int[digraph.V()];
         q.enqueue(w);
         distTo[w] = 0;
-        ancestor = w;
-        minLength = 0;
+        ancestor = -1;
+        minLength = Integer.MAX_VALUE;
         while (!q.isEmpty()) {
             int r = q.dequeue();
 
             if (bfForV.hasPathTo(r)) {
                 int length =  bfForV.distTo(r) + distTo[r];
-                if (length < minLength) {
+                if (length <= minLength) {
                     minLength = length; 
                     ancestor = r;
                 }

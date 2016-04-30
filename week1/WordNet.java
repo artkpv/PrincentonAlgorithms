@@ -54,7 +54,8 @@ public class WordNet {
             synsetIndexes.put(synset.index, synset);
             for (String word : synset.words) {
                 ArrayList<Synset> relatedSynsets = words.get(word);
-                relatedSynsets = relatedSynsets != null ? relatedSynsets : new ArrayList<Synset>();
+                if (relatedSynsets != null)
+                    relatedSynsets = new ArrayList<Synset>();
                 relatedSynsets.add(synset);
                 words.put(word, relatedSynsets);
                 readWordsCount++;
