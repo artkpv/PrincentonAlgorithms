@@ -8,4 +8,5 @@
 
 set install=%USERPROFILE%\algs4
 
+:: java -enableassertions -cp ".;%install%\algs4.jar" %*
 java -cp ".;%install%\algs4.jar" %*
