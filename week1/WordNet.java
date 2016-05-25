@@ -1,8 +1,23 @@
 // Constructs a graph of English words (synsets) and allows to find shortest ancestor and disctance. 
 // Then it can be used in determinine an outcast (e.g. table horse mouse -> table)
 //
-// https://class.coursera.org/algs4partII-007/assignment/view?assignment_id=5
+// See
+//  - https://class.coursera.org/algs4partII-007/assignment/view?assignment_id=5
 //
+//
+// NEXT HERE:
+// 1. 
+//   Test 4: test sap() of random noun pairs
+//     *  1000 pairs using synsets = synsets.txt; hypernyms = hypernyms.txt
+//        -  student sap() is too far to be a valid common ancestor when testing pair 5 of 1000
+//        -  nounA = Citlaltepetl
+//        -  nounB = spotted_hemlock
+//        -  student   sap() = 'object'
+//        -  reference sap() = 'object physical_object'
+//        -  student   distance() = 11
+//        -  reference distance() to 'object physical_object' = 11
+//        -  actual distance to 'object' = -1
+//   ==> FAILED
 
 import java.util.HashMap;
 import java.util.List;

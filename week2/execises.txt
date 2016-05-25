@@ -1,0 +1,64 @@
+
+Week 2. Algorithms II. 
+
+https://class.coursera.org/algs4partII-007/quiz/attempt?quiz_id=62
+
+Ex. 1.
+       v     A   B   C   D   E   F   G   H 
+------------------------------------------
+distTo[v]    -   0   -   -   -   -   -   - 
+
+      *  *  *  D  *  F  *  H 
+      A  B  C  D  E  F  G  H  
+      -  0  -  -  -  -  -  -  
+B     63 0  24 -  34 92 -  -   A C E F 
+C     63 0  24 79 34 92 60 -   A D E F G 
+E     53 0  24 79 34 92 60 -   A D F G
+A     53 0  24 79 34 92 60 -   D F G
+G     53 0  24 75 34 91 60 105 D F
+
+
+Ex. 2
+
+                             *     
+Topological order: B C G H D F A E 
+
+       v     A   B   C   D   E   F   G   H 
+------------------------------------------
+distTo[v]    -   0   -   -   -   -   -   - 
+distTo[v]    21  0   35  -   -   68  -   -  B
+distTo[v]    21  0   35  79  -   61  39  78 C
+distTo[v]    21  0   35  79  -   60  39  71 G
+distTo[v]    21  0   35  76  -   60  39  78 H
+distTo[v]    21  0   35  76  -   60  39  78 D
+distTo[v]    21  0   35  76  62  60  39  78 F
+21 0 35 76 62 60 39 78
+
+
+Ex. 3
+                                     *   * 
+       v     A   B   C   D   E   F   G   H 
+------------------------------------------
+distTo[v]    -   -   -   -   -   -   -   0 
+distTo[v]    -   -   -   54  -   -   36  0   i=0
+distTo[v]    -   67  69  44  -   57  36  0   i=1
+distTo[v]    74  60  59  44  70  57  36  0   i=2
+
+
+    v->w  weight
+    ------------
+    A->E    11
+    B->A     7
+    C->B     8
+    C->G     1
+    D->C    15
+    E->B     0
+    F->E    13
+    F->B     3
+    G->B    31
+    G->F    21
+    G->D     8
+    H->G    36
+    H->D    54
+
+74 60 59 44 70 57 36 0
