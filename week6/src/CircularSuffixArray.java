@@ -1,6 +1,7 @@
 import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
 
 
 public class CircularSuffixArray {
@@ -28,7 +29,6 @@ public class CircularSuffixArray {
             for(int i = 0; i < this.s.length(); i++) {
                 char c = this.s.charAt(i);
                 this.root.next[c] = this.add(this.root.next[c], i, 0);
-                System.out.print(this.toString());
             }
         }
 
@@ -173,12 +173,12 @@ public class CircularSuffixArray {
 
     // unit testing (required)
     public static void main(String[] args)  {
-        // T1
+        StringBuilder sb = new StringBuilder();
+        Scanner scanner = new Scanner(System.in);
+        while(scanner.hasNextLine())
+            sb.append(scanner.nextLine());
         CircularSuffixArray csa = new CircularSuffixArray("ABRACADABRA!");
         System.out.print(csa.toString());
-
-        assert csa.index(2) == 11: "csa.index(2) == 11";
-        System.out.println("SUCCESS");
     }
 }
 
