@@ -18,31 +18,38 @@ public class CircularSuffixArray {
         private String s;
         private int length;
         private int[] suffixArray;
-        private int order;  // used by walkInorder
+        private int order;  // used by walkInorder. TODO : wrap it
 
         public SuffixTree(String s) {
             this.s = s;
             this.length = s.length();
             this.root = new Node();
+            this.suffixArray = new int[s.length()];
             for(int i = 0; i < this.s.length(); i++) {
                 char c = this.s.charAt(i);
                 this.root.next[c] = this.add(this.root.next[c], i, 0);
+                System.out.print(this.toString());
             }
-            this.suffixArray = new int[s.length()];
         }
 
         public String toString(){
-            return this.walk_inorder(this.root, 0, ' ').toString();
+            this.order = 0;
+            StringBuilder walk = this.walk_inorder(this.root, 0);
+            StringBuilder sb = new StringBuilder();
+            sb.append("Suffix tree: " + (this.order-1) + " nodes:");
+            sb.append(walk.toString());
+            sb.append("\n array ");
+            for(int i = 0; i < this.suffixArray.length; i++) {
+                sb.append(i + ":" + this.suffixArray[i] + " ");
+            }
+            return sb.toString();
         }
 
         public int[] getSuffixArray() {
             // now inorder iterate and get sorted suffix array
             this.order = 0;
-            walk_inorder(this.root, 0, '-');
+            walk_inorder(this.root, 0);
             return this.suffixArray;
-        }
-
-        private int get_longest_prefix_length(int lo1, int len1, int lo2, int len2) {
         }
 
         private Node add(Node node, int string_inx, int depth_inx) {
@@ -61,13 +68,16 @@ public class CircularSuffixArray {
                 // find common suffix length:
                 int common_suffix_length = 1; // 1st char matches
                 int string_remaining_length = length - depth_inx;
-                while(common_suffix_length <= string_remaining_length && common_suffix_length > node.length ){
-                    char string_char = this.s.charAt((string_inx + depth_inx + common_suffix_length)%length);
-                    char suffix_char = this.s.charAt((node.lo + common_suffix_length)%length);
+                while(common_suffix_length <= Math.min(string_remaining_length, node.length)) {
+                    char string_char = this.s.charAt((string_inx + depth_inx + common_suffix_length - 1)%length);
+                    char suffix_char = this.s.charAt((node.lo + common_suffix_length - 1)%length);
                     if(string_char != suffix_char)
                         break;
                     common_suffix_length++;
                 }
+                common_suffix_length--;
+                assert common_suffix_length <= node.length;
+                assert common_suffix_length <= string_remaining_length;
 
                 // 2.1 all string == all suffix:  (A) - (A); (ABCD) - (ABCD)
                 if(common_suffix_length == string_remaining_length) {
@@ -75,100 +85,53 @@ public class CircularSuffixArray {
                     node.strings.add(string_inx);
                     return node;
                 }
-                // 2.2 string part == all suffix: (AB)CDE - (AB)
+                // 2.2 string part == all suffix: (AB)CDE - (AB), (A)BCDE - (A)
                 else if(common_suffix_length == node.length) {
                     assert common_suffix_length < string_remaining_length;
-                    // TODO
 
+                    int next_depth_inx = depth_inx + common_suffix_length;
+                    char next_char = this.s.charAt((string_inx + next_depth_inx)%length);
+                    node.next[next_char] = this.add(node.next[next_char], string_inx, next_depth_inx);
+                    return node;
                 }
                 // 2.3 string part == suffix part:  (AB)CDE - (AB)DDD
                 else {
-                    // TODO
-                }
-            }
+                    assert node.length > common_suffix_length;
+                    assert string_remaining_length > common_suffix_length;
+                    Node firstSuffixPart = new Node();
+                    firstSuffixPart.lo = node.lo;
+                    firstSuffixPart.length = common_suffix_length;
 
-            // 2. One char suffix
-            else if(node.length == 1) {
-                assert this.s.charAt(node.lo) == c;
-                node.next[c] = this.add(node.next[c], string_inx, depth_inx + 1);
-                return node;
-            }
-            // 3. longer suffix
-            else {
+                    Node secondSuffixPart = new Node();
+                    secondSuffixPart.lo = (node.lo + common_suffix_length) % length;
+                    secondSuffixPart.length = node.length - common_suffix_length;
+                    secondSuffixPart.strings = node.strings;
+                    char secondSuffixPartChar = this.s.charAt(secondSuffixPart.lo);
+                    firstSuffixPart.next[secondSuffixPartChar] = secondSuffixPart;
 
-                if(node.length == prefix_length){
+                    int next_depth_inx = depth_inx + common_suffix_length;  // TODO: duplicate
+                    char next_char = this.s.charAt((string_inx + next_depth_inx)%length);
+                    firstSuffixPart.next[next_char] =
+                            this.add(firstSuffixPart.next[next_char], string_inx, next_depth_inx);
 
-                }
-                else if(node.length) {
-                }
-
-                // 1. whole suffix/leaf match
-                if (prefix_length == hi1 - lo1 + 1)  {  // TODO Bug: fix length of suffix
-                    if(node.strings.size() > 0) { // leaf
-                        node.strings.add(string_inx);
-                    }
-                    else {  // suffix
-                        int newDepthInx = (depth_inx + prefix_length);
-                        char nextC = this.s.charAt((string_inx + newDepthInx)%length);
-                        node.next[nextC] = this.add(node.next[nextC], string_inx, newDepthInx);
-                    }
-                    return node;
-                }
-                // 3. part of suffix/leaf match:
-                else {
-                    Node newSuffix = new Node();
-                    if(prefix_length > 1) { // can be one char node or +1 char
-                        newSuffix.lo = lo1;
-                        newSuffix.hi = lo1 + prefix_length - 1;
-                    }
-
-                    // add second part of this divided suffix/leaf:
-                    Node secondPart = new Node();
-                    secondPart.strings = node.strings;
-                    int secondPartLo = (lo1 + prefix_length)%length;
-                    char secondPartChar = this.s.charAt(secondPartLo);
-                    if(node.lo != -1 && secondPartLo != node.hi) {
-                        secondPart.lo = secondPartLo;
-                        secondPart.hi = node.hi;
-                    }
-                    newSuffix.next[secondPartChar] = secondPart;
-
-                    Node newNode = new Node();
-                    newNode.strings.add(string_inx);
-                    int newNodeLo = (lo2 + prefix_length)%length;
-                    char newNodeChar = this.s.charAt(newNodeLo);
-                    assert newNodeChar != secondPartChar;
-                    newSuffix.next[newNodeChar] = newNode;
-
-                    return newSuffix;
+                    return firstSuffixPart;
                 }
             }
         }
 
-        private StringBuilder walk_inorder(Node v, int level, char c) {
+        private StringBuilder walk_inorder(Node v, int level) {
             StringBuilder sb = new StringBuilder();
             // print:
-            // level:
-            for(int i = 0; i < level; i++)
-                sb.append(" ");
-            // suffix:
-            if(v.lo > -1) {
-                for(int i = v.lo; i == v.hi; ){
-                    sb.append(this.s.charAt(i));
-                    i = (i + 1)%this.s.length();
-                }
-            }
-            else {
-                sb.append(c);
-            }
-            sb.append(" " + v.lo + ".." + v.hi);
-            for(Integer i : v.strings)
-                sb.append(" " + i);
+            sb.append("\n");
+            for(int i = 0; i < level; i++)  sb.append(" ");
+            sb.append(".");
+            for(int i = 0; i < v.length; i++ ) sb.append(this.s.charAt((v.lo+i)%this.s.length()));
+            for(Integer i : v.strings) sb.append(" " + i);
 
             for(int ord = 0; ord < this.R; ord++) {
                 Node w = v.next[ord];
                 if(w != null)
-                    walk_inorder(w, level + 1, (char)ord);
+                    sb.append(walk_inorder(w, level + 1));
             }
             for(Integer inx : v.strings) {
                 this.suffixArray[inx] = this.order;
@@ -193,9 +156,7 @@ public class CircularSuffixArray {
     }
 
     @Override
-    public String toString() {
-        return this.s + "\n" + this.st.toString() + "\n";
-    }
+    public String toString() { return this.s + "\n" + this.st.toString() + "\n"; }
 
     // length of s
     public int length() {
