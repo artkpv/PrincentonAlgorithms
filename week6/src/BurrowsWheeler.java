@@ -33,16 +33,14 @@ ARD!RCAAAABB   - sorted
         String t = BinaryStdIn.readString();
 
         String firstCol = null; // TODO
-        int[] next = new int[]; // TODO
         // Generates next array used to invert to the original
         // gets next[] - array where next[i] == i+1, where i index of original suffix
 
-        // using Quick Sort on array which has inx of `t`
-        //  each time we find a group of n chars (`C` or `RR`
-        //  as we know the position of them in first col
-        //  add an inx to `next`
-        // Time complexity: O(n*log(n))
-        // Space: `next`, firstCol inx`
+        // sort using Bucket Sort ;   O(n) space / time
+        // but how to get source inx? make it int[int[]] ? int[char] - gets array of source indexes?
+
+        int[] next = new int[]; // TODO
+        // for each group of chars determine next[];  O(n) space / time
 
         String original = invertMessage(next, first, firstCol, t);
         BinaryStdOut.write(original);
