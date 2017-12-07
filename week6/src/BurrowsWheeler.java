@@ -18,7 +18,10 @@ public class BurrowsWheeler {
 
     // apply Burrows-Wheeler inverse transform, reading from standard input and writing to standard output
     public static void inverseTransform(){
-        // TODO
+        int firstStringSortedInx = BinaryStdIn.readInt();
+        String input = BinaryStdIn.readString();
+        System.out.print(firstStringSortedInx);
+        System.out.print(input);
     }
 
     // if args[0] is '-', apply Burrows-Wheeler transform
