@@ -1,6 +1,7 @@
 import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
-import java.util.Scanner;
+
+import edu.princeton.cs.algs4.*;
 
 
 public class CircularSuffixArray {
@@ -18,8 +19,8 @@ public class CircularSuffixArray {
         private String s;
         private int length;
         private int[] suffixArray;
-        private int order;  // used by walkInorder. TODO : wrap it
-        private int suffixArrayFirstStringIndex = -1; // not to iterate index array twice
+        private int sorted_inx;  // used by walkInorder. TODO : wrap it
+        private int firstStringSortedInx;
 
         public SuffixTree(String s) {
             this.s = s;
@@ -33,9 +34,9 @@ public class CircularSuffixArray {
         }
 
         public String toString(){
-            this.order = 0;
+            this.sorted_inx = 0;
             StringBuilder sb = new StringBuilder();
-            sb.append("Suffix tree: " + (this.order-1) + " nodes:");
+            sb.append("Suffix tree: " + (this.sorted_inx -1) + " nodes:");
             sb.append("\n array ");
             for(int i = 0; i < this.suffixArray.length; i++) {
                 sb.append(i + ":" + this.suffixArray[i] + " ");
@@ -43,13 +44,9 @@ public class CircularSuffixArray {
             return sb.toString();
         }
 
-        public int suffixArrayFirstStringIndex() {
-            return suffixArrayFirstStringIndex;
-        }
-
         public int[] getSuffixArray() {
             // now inorder iterate and get sorted suffix array
-            this.order = 0;
+            this.sorted_inx = 0;
             walk_inorder_quick(this.root);
             return this.suffixArray;
         }
@@ -128,10 +125,10 @@ public class CircularSuffixArray {
                     walk_inorder_quick(w);
             }
             for(Integer inx : v.strings) {
-                this.suffixArray[inx] = this.order;
                 if(inx == 0)
-                    suffixArrayFirstStringIndex = this.order;
-                this.order++;
+                    this.firstStringSortedInx = this.sorted_inx;
+                this.suffixArray[this.sorted_inx] = inx;
+                this.sorted_inx++;
             }
         }
     }
@@ -158,8 +155,8 @@ public class CircularSuffixArray {
         return this.s.length();
     }
 
-    public int firstStringIndex(){
-        return this.st.suffixArrayFirstStringIndex;
+    public int getFirstStringSortedInx() {
+        return this.st.firstStringSortedInx;
     }
 
     // returns index of ith sorted suffix
@@ -172,12 +169,9 @@ public class CircularSuffixArray {
 
     // unit testing (required)
     public static void main(String[] args)  {
-        StringBuilder sb = new StringBuilder();
-        Scanner scanner = new Scanner(System.in);
-        while(scanner.hasNextLine())
-            sb.append(scanner.nextLine());
-        String input = sb.toString();
+        String input = BinaryStdIn.readString();
         CircularSuffixArray csa = new CircularSuffixArray(input);
+        System.out.println(input);
         System.out.println();
         for(int i = 0; i < input.length(); i++)
             System.out.print(i+":"+csa.index(i) + " ");
