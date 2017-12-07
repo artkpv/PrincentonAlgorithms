@@ -3,6 +3,9 @@ import edu.princeton.cs.algs4.*;
 public class BurrowsWheeler {
     // apply Burrows-Wheeler transform, reading from standard input and writing to standard output
     public static void transform(){
+        /*
+         must be proportional to n + R (or better) in the worst case, excluding the time to construct the circular suffix array
+         */
         String input = BinaryStdIn.readString();
         BinaryStdIn.close();
         CircularSuffixArray csa = new CircularSuffixArray(input);
@@ -18,10 +21,40 @@ public class BurrowsWheeler {
 
     // apply Burrows-Wheeler inverse transform, reading from standard input and writing to standard output
     public static void inverseTransform(){
-        int firstStringSortedInx = BinaryStdIn.readInt();
-        String input = BinaryStdIn.readString();
-        System.out.print(firstStringSortedInx);
-        System.out.print(input);
+        /*
+        must be proportional to n + R (or better) in the worst case
+3              - first
+ARD!RCAAAABB   - sorted
+!
+
+1. next[] - redefined. Then used to reconstruct the original array.
+         */
+        int first = BinaryStdIn.readInt();
+        String t = BinaryStdIn.readString();
+
+        String firstCol = null; // TODO
+        int[] next = new int[]; // TODO
+        // Generates next array used to invert to the original
+        // gets next[] - array where next[i] == i+1, where i index of original suffix
+
+        // using Quick Sort on array which has inx of `t`
+        //  each time we find a group of n chars (`C` or `RR`
+        //  as we know the position of them in first col
+        //  add an inx to `next`
+        // Time complexity: O(n*log(n))
+        // Space: `next`, firstCol inx`
+
+        String original = invertMessage(next, first, firstCol, t);
+        BinaryStdOut.write(original);
+    }
+
+    // generate original string
+    private static String invertMessage(int[] next, int first, String firstCol, String lastCol) {
+        // given sorted first column
+        // first char in output is at first
+        // next char in output is at next[first]
+        //  .. so on
+        return null;
     }
 
     // if args[0] is '-', apply Burrows-Wheeler transform
