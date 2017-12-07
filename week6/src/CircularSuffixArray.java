@@ -1,6 +1,5 @@
 import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 
@@ -20,6 +19,7 @@ public class CircularSuffixArray {
         private int length;
         private int[] suffixArray;
         private int order;  // used by walkInorder. TODO : wrap it
+        private int suffixArrayFirstStringIndex = -1; // not to iterate index array twice
 
         public SuffixTree(String s) {
             this.s = s;
@@ -34,10 +34,8 @@ public class CircularSuffixArray {
 
         public String toString(){
             this.order = 0;
-            StringBuilder walk = this.walk_inorder(this.root, 0);
             StringBuilder sb = new StringBuilder();
             sb.append("Suffix tree: " + (this.order-1) + " nodes:");
-            sb.append(walk.toString());
             sb.append("\n array ");
             for(int i = 0; i < this.suffixArray.length; i++) {
                 sb.append(i + ":" + this.suffixArray[i] + " ");
@@ -45,10 +43,14 @@ public class CircularSuffixArray {
             return sb.toString();
         }
 
+        public int suffixArrayFirstStringIndex() {
+            return suffixArrayFirstStringIndex;
+        }
+
         public int[] getSuffixArray() {
             // now inorder iterate and get sorted suffix array
             this.order = 0;
-            walk_inorder(this.root, 0);
+            walk_inorder_quick(this.root);
             return this.suffixArray;
         }
 
@@ -119,25 +121,18 @@ public class CircularSuffixArray {
             }
         }
 
-        private StringBuilder walk_inorder(Node v, int level) {
-            StringBuilder sb = new StringBuilder();
-            // print:
-            sb.append("\n");
-            for(int i = 0; i < level; i++)  sb.append(" ");
-            sb.append(".");
-            for(int i = 0; i < v.length; i++ ) sb.append(this.s.charAt((v.lo+i)%this.s.length()));
-            for(Integer i : v.strings) sb.append(" " + i);
-
+        private void walk_inorder_quick(Node v) {
             for(int ord = 0; ord < this.R; ord++) {
                 Node w = v.next[ord];
                 if(w != null)
-                    sb.append(walk_inorder(w, level + 1));
+                    walk_inorder_quick(w);
             }
             for(Integer inx : v.strings) {
                 this.suffixArray[inx] = this.order;
+                if(inx == 0)
+                    suffixArrayFirstStringIndex = this.order;
                 this.order++;
             }
-            return sb;
         }
     }
 
@@ -163,6 +158,10 @@ public class CircularSuffixArray {
         return this.s.length();
     }
 
+    public int firstStringIndex(){
+        return this.st.suffixArrayFirstStringIndex;
+    }
+
     // returns index of ith sorted suffix
     public int index(int i) {
         int l = this.length();
@@ -177,8 +176,12 @@ public class CircularSuffixArray {
         Scanner scanner = new Scanner(System.in);
         while(scanner.hasNextLine())
             sb.append(scanner.nextLine());
-        CircularSuffixArray csa = new CircularSuffixArray("ABRACADABRA!");
-        System.out.print(csa.toString());
+        String input = sb.toString();
+        CircularSuffixArray csa = new CircularSuffixArray(input);
+        System.out.println();
+        for(int i = 0; i < input.length(); i++)
+            System.out.print(i+":"+csa.index(i) + " ");
+        System.out.println();
     }
 }
 
