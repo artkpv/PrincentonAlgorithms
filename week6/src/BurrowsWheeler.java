@@ -1,6 +1,9 @@
 import edu.princeton.cs.algs4.*;
 
+import java.util.ArrayList;
+
 public class BurrowsWheeler {
+    private static final int R = 256;        // extended ASCII
     // apply Burrows-Wheeler transform, reading from standard input and writing to standard output
     public static void transform(){
         /*
@@ -19,40 +22,66 @@ public class BurrowsWheeler {
         BinaryStdOut.close();
     }
 
-    // apply Burrows-Wheeler inverse transform, reading from standard input and writing to standard output
+    // Apply Burrows-Wheeler inverse transform, reading from standard input and writing to standard output.
+    // Must be proportional to n + R (or better) in the worst case.
     public static void inverseTransform(){
-        /*
-        must be proportional to n + R (or better) in the worst case
-3              - first
-ARD!RCAAAABB   - sorted
-!
-
-1. next[] - redefined. Then used to reconstruct the original array.
-         */
         int first = BinaryStdIn.readInt();
         String t = BinaryStdIn.readString();
 
-        String firstCol = null; // TODO
-        // Generates next array used to invert to the original
-        // gets next[] - array where next[i] == i+1, where i index of original suffix
+        // 1. generate `next` array used to invert to the original
+        //    next[] - array where next[i] == i+1, where i index of original suffix
 
-        // sort using Bucket Sort ;   O(n) space / time
-        // but how to get source inx? make it int[int[]] ? int[char] - gets array of source indexes?
+        // 1.1 get first col as indexes of last col:
+        //     sort using Counting Sort ;   O(n) space / time
+        ArrayList<ArrayList<Integer>> firstColCharGroups = new ArrayList<ArrayList<Integer>>(R);
+        for(int c = 0; c < R; c++) firstColCharGroups.add(new ArrayList<Integer>());
+        for(int i = 0; i < t.length(); i++)
+            firstColCharGroups.get(t.charAt(i)).add(i);
+        //   get number of chars before a group of chars (base):
+        int[] firstColGroupBases = new int[R];
+        firstColGroupBases[0] = 0;
+        StringBuilder firstCol = new StringBuilder(t.length());
+        firstCol.setLength(t.length());
+        for(int i = 1; i < R; i++)
+        {
+            int base = firstColCharGroups.get(i - 1).size() + firstColGroupBases[i - 1];
+            firstColGroupBases[i] = base;
+            ArrayList<Integer> group = firstColCharGroups.get(i);
+            for(int j = 0; j < group.size(); j++)
+                firstCol.setCharAt(base + j, t.charAt(group.get(j)));
+        }
+        assert firstCol.charAt((int)firstCol.length()/2) != '\u0000';
 
-        int[] next = new int[]; // TODO
-        // for each group of chars determine next[];  O(n) space / time
+        // 1.2 from sorted chars depict `next`
+        int[] next = new int[t.length()];
+        for(int c = 0; c < R; c++)
+        {
+            int base = firstColGroupBases[c];
+            ArrayList<Integer> indexes = firstColCharGroups.get(c);
+            for(int i = 0; i < indexes.size(); i++) {
+                int firstColCharInx = base + i;
+                int lastColCharInx = indexes.get(i);
+                next[firstColCharInx] = lastColCharInx;
+            }
+        }
 
-        String original = invertMessage(next, first, firstCol, t);
-        BinaryStdOut.write(original);
-    }
+        // 2. invert, generate original string
+        //    given sorted first column
+        //    first char in output is at `first`
+        //    next char in output is at next[first]
+        //     .. so on
+        StringBuilder original = new StringBuilder();
+        original.setLength(t.length());
+        int next_i = first;
+        for(int i = 0; i < t.length(); i++)
+        {
+            char ch = firstCol.charAt(next_i);
+            original.setCharAt(i, ch);
+            next_i = next[next_i];
+        }
 
-    // generate original string
-    private static String invertMessage(int[] next, int first, String firstCol, String lastCol) {
-        // given sorted first column
-        // first char in output is at first
-        // next char in output is at next[first]
-        //  .. so on
-        return null;
+        System.out.print(original.toString());
+        //BinaryStdOut.write(original.toString());
     }
 
     // if args[0] is '-', apply Burrows-Wheeler transform
