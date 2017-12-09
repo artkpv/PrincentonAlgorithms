@@ -12,12 +12,23 @@ public class BurrowsWheeler {
         String input = BinaryStdIn.readString();
         BinaryStdIn.close();
         CircularSuffixArray csa = new CircularSuffixArray(input);
-        BinaryStdOut.write(csa.getFirstStringSortedInx());
+        StringBuilder bufferTillFirstFound = new StringBuilder();
         int l = input.length();
         for(int i = 0; i < l; i++) {
             int index_i = csa.index(i);
             char c = input.charAt((index_i + l - 1)%l);
-            BinaryStdOut.write(c);
+            if(bufferTillFirstFound != null)
+            {
+                bufferTillFirstFound.append(c);
+                if(index_i == 0)
+                {
+                    BinaryStdOut.write(index_i);
+                    BinaryStdOut.write(bufferTillFirstFound.toString());
+                    bufferTillFirstFound = null;
+                }
+            }
+            else
+                BinaryStdOut.write(c);
         }
         BinaryStdOut.close();
     }
@@ -51,7 +62,7 @@ public class BurrowsWheeler {
             for(int j = 0; j < group.size(); j++)
                 firstCol.setCharAt(base + j, t.charAt(group.get(j)));
         }
-        assert firstCol.charAt((int)firstCol.length()/2) != '\u0000';
+        assert firstCol.charAt(firstCol.length()/2) != '\u0000';
 
         // 1.2 from sorted chars depict `next`
         int[] next = new int[t.length()];

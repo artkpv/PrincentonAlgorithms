@@ -5,10 +5,10 @@ import edu.princeton.cs.algs4.*;
 
 
 public class CircularSuffixArray {
-    class SuffixTree {
+    private class SuffixTree {
         private static final int R = 256;        // extended ASCII
 
-        class Node {
+        private class Node {
             Node[] next = new Node[R];
             int lo = -1; // start of suffix
             int length = -1; // length
@@ -20,9 +20,8 @@ public class CircularSuffixArray {
         private int length;
         private int[] suffixArray;
         private int sorted_inx;  // used by walkInorder. TODO : wrap it
-        private int firstStringSortedInx;
 
-        public SuffixTree(String s) {
+        private SuffixTree(String s) {
             this.s = s;
             this.length = s.length();
             this.root = new Node();
@@ -126,14 +125,12 @@ public class CircularSuffixArray {
             //        System.out.print(this.s.charAt((v.lo + i)%this.s.length()));
             //}
 
-            for(int ord = 0; ord < this.R; ord++) {
+            for(int ord = 0; ord < R; ord++) {
                 Node w = v.next[ord];
                 if(w != null)
                     walkInorder(w, level + 1);
             }
             for(Integer inx : v.strings) {
-                if(inx == 0)
-                    this.firstStringSortedInx = this.sorted_inx;
                 this.suffixArray[this.sorted_inx] = inx;
                 this.sorted_inx++;
             }
@@ -160,10 +157,6 @@ public class CircularSuffixArray {
     // length of s
     public int length() {
         return this.s.length();
-    }
-
-    public int getFirstStringSortedInx() {
-        return this.st.firstStringSortedInx;
     }
 
     // returns index of ith sorted suffix
