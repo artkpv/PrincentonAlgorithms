@@ -85,7 +85,7 @@ public class WordNet {
                 ArrayList<Synset> relatedSynsets = words.get(word);
                 if (relatedSynsets == null)
                     relatedSynsets = new ArrayList<Synset>();
-                // to get sap get it more specific ? TODO find out how to make it
+                // to get sap get it more specific ? NEXT find out how to make it
                 int i = 0;
                 for(; i < relatedSynsets.size() && relatedSynsets.get(i).words.size() >= synset.words.size(); i++)
                     ;

@@ -48,7 +48,7 @@ public class Fast {
 			   StdOut.println(points[inxs[j]].toString());
 		   }
 
-		   // TODO NEXT: find out why not sorted!
+		   // NEXT: find out why not sorted!
 		   assert isSorted(inxs, slopes);
 
 		   int duplicatesNumber = 0;

@@ -3,7 +3,7 @@ import edu.princeton.cs.algs4.BinaryStdIn;
 import java.util.ArrayList;
 
 /*
-TODO: Pass memory test
+NEXT: Pass memory test
 
 Memory usage of a CircularSuffixArray for a random string of length n.
 Maximum allowed memory is 64n + 128.
@@ -44,7 +44,7 @@ public class CircularSuffixArraySuffixTree {
         private String s;
         private int length;
         private int[] suffixArray;
-        private int sorted_inx;  // used by walkInorder. TODO : wrap it
+        private int sorted_inx;  // used by walkInorder. NEXT : wrap it
 
         private SuffixTree(String s) {
             this.s = s;

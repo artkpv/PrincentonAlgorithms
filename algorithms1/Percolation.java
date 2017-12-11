@@ -9,7 +9,7 @@
  *
  *************************************************************************/
 
-// TODO: NOT SOLVED. See another file with solution using algorithm inside the Percolation class.
+// NEXT See another file with solution using algorithm inside the Percolation class.
 
 public class Percolation {
 

@@ -1,5 +1,5 @@
 
-// TODO: NEXT
+// NEXT
 // http://coursera.cs.princeton.edu/algs4/checklists/8puzzle.html
 // http://coursera.cs.princeton.edu/algs4/assignments/8puzzle.html
 public class Solver {
