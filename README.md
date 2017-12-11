@@ -4,3 +4,5 @@ About this course: This course covers the essential information that every serio
 
 https://www.coursera.org/learn/algorithms-part1
 https://www.coursera.org/learn/algorithms-part2
+http://algs4.cs.princeton.edu
+
