@@ -1,0 +1,131 @@
+
+Week 1, ex. 2
+
+----------------------------------------------------
+
+19.09.2014 Fri 11:08
+        N   seconds
+-------------------
+       64     0.000
+      128     0.001 
+      256     0.005 5
+      512     0.035 7
+     1024     0.236 6.742857
+     2048     1.530 6.483051
+     4096    10.148 6.63268
+     8192    69.244 6.823413
+    16384   463.722 6.696927
+    32768  3065.821 6.611334
+
+3 question
+
+
+public class MysteryBox {
+    private double x0, x1;
+    private long y0, y1;
+    private boolean z0;
+    private int[] a = new int[280];
+
+    ...
+}
+
+
+16 (overheade) + 8*2 + 8*2 + 1 + 8  = 57 ; + 7 (padding) = 64MB
+
+--------
+19.09.2014 Fri 12:58
+
+second attempt
+
+        N   seconds
+-------------------
+     1024     0.000
+     2048     0.000
+     4096     0.001
+     8192     0.003
+    16384     0.008
+    32768     0.024
+    65536     0.072
+   131072     0.216
+   262144     0.645
+   524288     1.935
+  1048576     5.803
+  2097152    17.352
+  4194304    52.009
+  8388608   155.966 2.998827
+ 16777216   467.355 2.996518
+ 33554432  1399.911 2.995391
+
+
+Question 2
+int sum = 0;
+for (int i = N*N; i > 1; i = i/2)
+    for (int j = 0; j < i; j++)
+        sum++;
+
+N*N*(N-1)
+(N*N)/2*((N*N)/2-1)!
+(N*N)/4*((N*N)/4-1)!
+...
+
+
+
+log(N*N)*(N*N)
+
+public class MysteryBox {
+    private boolean x0, x1;
+    private double y0;
+    private int z0, z1;
+    private long[] a = new long[104];
+
+    ...
+}
+
+16 + 1*2 + 8 + 4*2 + 8 + 24 + 104*8 + pad = 66 + 104*8 + 6 = 898 +6 = 902 B
+
+
+--------------
+Third attempt
+20.09.2014 Sat 14:48
+
+  4194304    20.605
+  8388608    60.195
+ 16777216   175.589 2.919761
+ 33554432   512.678 2.919761
+ 67108864  1496.442 2.918873
+
+
+Que. 3
+
+public class MysteryBox {
+    private boolean x0, x1, x2, x3;
+    private int y0, y1, y2;
+    private double z0, z1, z2, z3;
+    private long[] a = new long[160];
+
+    ...
+}
+16 + 4 *1 + 4*3 + 4*8+ 8+ pad(=0) + 24 + 160*8  = 96+1280+pad = 1376 +pad  
+32 + 32 + 8 
+
+----------
+
+20.09.2014 Sat 15:30
+
+int sum = 0;
+for (int i = 1; i <= N; i++)
+    for (int j = 1; j*j <= N; j = j*2)
+        sum++;
+
+N* ()
+
+public class MysteryBox {
+    private long x0, x1, x2, x3;
+    private int y0, y1;
+    private double z0, z1, z2, z3;
+    private boolean[] a = new boolean[56];
+
+    ...
+}
+
+(16 + 4*8 + 2*4 + 4*8 + 8 + pad) + (24 + 56) = 96 + 80 = 176 176

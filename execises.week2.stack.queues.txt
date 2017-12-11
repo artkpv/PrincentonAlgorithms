@@ -1,0 +1,63 @@
+3 2 4 6 5 1 8 0 7 9
+
+3 2 1 0
+2 1 0 
+1 0 
+4 1 0
+1 0 
+5 1 0
+6 5 1 0
+5 1 0
+1 0
+0 
+7 0
+8 7 0
+
+0387965421
+0
+123
+1245678
+124567
+124569
+12456
+1245
+124
+12
+
+
+Ques. 3
+------
+
+   public class GenericMysteryBox<Item> {
+        private Node first;
+
+        private class Node {
+            private Item item;
+            private Node next;
+        }
+
+        ...
+    }
+
+16 + 8 + 24 * N 
+
+
+
+----------------------
+
+
+ques. 3.
+    public class MysteryBox {
+        private Node first;
+
+        private static class Node {
+            private long item;
+            private Node next;
+        }
+
+        ...
+    }
+
+16 + 8 + N * (16 + 8 + 8 )
+
+
