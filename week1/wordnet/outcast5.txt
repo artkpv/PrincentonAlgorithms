@@ -1,5 +1,0 @@
-horse
-table
-zebra
-cat
-bear
